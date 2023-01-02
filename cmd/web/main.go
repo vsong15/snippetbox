@@ -19,11 +19,12 @@ import (
 	"vsong19.net/snippetbox/internal/models"
 )
 
-// Add a new sessionManager field to the application struct.
+// Add a new users field to the application struct.
 type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	snippets       *models.SnippetModel
+	users          *models.UserModel
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
@@ -54,10 +55,13 @@ func main() {
 	// browser when a HTTPS connection is being used (and won't be sent over an
 	// unsecure HTTP connection).
 	sessionManager.Cookie.Secure = true
+	// Initialize a models.UserModel instance and add it to the application
+	// dependencies.
 	app := &application{
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		snippets:       &models.SnippetModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
@@ -67,11 +71,10 @@ func main() {
 			tls.CurveP256},
 	}
 	srv := &http.Server{
-		Addr:      *addr,
-		ErrorLog:  errorLog,
-		Handler:   app.routes(),
-		TLSConfig: tlsConfig,
-		// Add Idle, Read and Write timeouts to the server.
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
