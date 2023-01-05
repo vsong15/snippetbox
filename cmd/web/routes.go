@@ -23,6 +23,9 @@ func (app *application) routes() http.Handler {
 		app.authenticate)
 	router.Handler(http.MethodGet, "/",
 		dynamic.ThenFunc(app.home))
+	// Add the about route.
+	router.Handler(http.MethodGet, "/about",
+		dynamic.ThenFunc(app.about))
 	router.Handler(http.MethodGet, "/snippet/view/:id",
 		dynamic.ThenFunc(app.snippetView))
 	router.Handler(http.MethodGet, "/user/signup",
