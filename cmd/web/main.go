@@ -20,6 +20,7 @@ import (
 )
 
 type application struct {
+	debug          bool // Add a new debug field.
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	snippets       models.SnippetModelInterface // Use our new interface type.
@@ -32,6 +33,10 @@ type application struct {
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
+
+	// Create a new debug flag with the default value of false.
+	debug := flag.Bool("debug", false, "Enable debug mode")
+
 	flag.Parse()
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t",
@@ -57,6 +62,7 @@ func main() {
 	// Initialize a models.UserModel instance and add it to the application
 	// dependencies.
 	app := &application{
+		debug:          *debug, // Add the debug flag value to the application struct.
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		snippets:       &models.SnippetModel{DB: db},
