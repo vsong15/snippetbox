@@ -17,13 +17,11 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.FS(ui.Files))
 	router.Handler(http.MethodGet, "/static/*filepath",
 		fileServer)
-	// Add a new GET /ping route.
 	router.HandlerFunc(http.MethodGet, "/ping", ping)
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf,
 		app.authenticate)
 	router.Handler(http.MethodGet, "/",
 		dynamic.ThenFunc(app.home))
-	// Add the about route.
 	router.Handler(http.MethodGet, "/about",
 		dynamic.ThenFunc(app.about))
 	router.Handler(http.MethodGet, "/snippet/view/:id",
@@ -41,6 +39,9 @@ func (app *application) routes() http.Handler {
 		protected.ThenFunc(app.snippetCreate))
 	router.Handler(http.MethodPost, "/snippet/create",
 		protected.ThenFunc(app.snippetCreatePost))
+	// Add the view account route, using the protected middleware chain.
+	router.Handler(http.MethodGet, "/account/view",
+		protected.ThenFunc(app.accountView))
 	router.Handler(http.MethodPost, "/user/logout",
 		protected.ThenFunc(app.userLogoutPost))
 	standard := alice.New(app.recoverPanic, app.logRequest,
